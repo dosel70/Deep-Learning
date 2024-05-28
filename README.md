@@ -142,3 +142,50 @@
 - CNN은 인간의 시신경 구조를 모방한 기술로써, 이미지의 패턴을 찾을 때 사용한다.
 - Feature Extraction을 통해 각 단계를 거치면서, 함축된 이미지 조각으로 분리되고, 각 이미지 조각을 통해 이미지의 패턴을 인식한다.
 - CNN은 분류하기에 적합한 최적의 feature를 추출하고, 최적의 feature를 추출하기 위한 최적의 Weight와 Filter를 계산한다.
+
+---
+
+### Filter 
+- filter 의 개수 -> 출력 채널의 개수, bias에 반영된다. (필터 안에 커널이 있고, 커널의 개수는 입력 이미지의 채널의 개수와 같다. 커널의 사이즈는 정해져 있지 않음)
+- 보통 정방 행렬로 구성되어 있으며, 원본 이미지에 슬라이딩 윈도우 알고리즘을 사용하여 순차적으로 새로운 픽셀 값을 만들면서 적용한다.
+- 사용자가 목적에 맞는 특정 필터를 만들거나, 기존에 설계된 다양한 필터를 선택하여 이미지에 적용한다. 하지만 CNN은 최적의 필터(필드)값을 학습하여 스스로 최적화 한다.
+- 필터 하나 당, 이미지 채널 수 만큼 kernel이 존재하고, 각 채널에 할당된 필터의 커널을 적용하여 출력 이미지를 생한다.
+- 출력 feature map 의 개수는 필터의 개수와 동일하다.
+
+### Kernel  
+- filter 안에 1 ~ n 개의 커널이 존재한다. 커널의 개수는 반드시 이미지의 채널 수와 동일해야 한다.
+- kernel Size는 가로 * 세로를 의미하며, 가로와 세로는 서로 다를 수 있지만 보통은 일치 시킨다.
+- kernel Size가 크면 클 수록, 입력한 이미지에서 더 많은 feature 정보를 가져올 수 있지만,
+  큰 사이즈의 Kernel로 Convolution Backbone을 할 경우, 훨씬 더 많은 연산량과 파라미터가 필요하다.
+
+### Stride  
+- 입력 이미지에 Convolution Filter를 적용할 때 Sliding Window가 이동하는 간격을 의미한다.
+- 기본 stride 는 1이지만, 2를 적용하면 입력 feature map 대비 출력 feature map의 크기가 절반정도 줄어든다. (1/2) 만큼
+- stride를 키우면 feature 정보를 손실할 가능성이 높아지지만, 오히려 불필요한 특성을 제거하는 효과를 가져올 수 있고, Convolution 연산 속도를 향상 시킨다.
+
+#### Padding  
+- Filter를 적용하여 Convolution 수행 시 출력 feature map이 입력 feature map 대비 계속해서 작아지는 것을 막기 위해 사용한다.
+- Filter 적용 전, 입력 feature map의 상하좌우 끝에 각각 열과 행을 추가한 뒤, 0으로 채워서 크기를 증가시킨다.
+- 출력 이미지와 크기를 입력 이미지의 크기와 동일하게 유지하기 위해서 직접 계산할 필요 없이 "same"이라는 값을 전달하면 입력 이미지의 크기와 동일하게 맞출 수 있다.
+
+
+#### Pooling   
+- Convolution이 적용된 feature map의 일정 영역 별로 하나의 값을 추출하여 feature map의 사이즈를 줄인다.
+- 보통은 Convolution -> Relu activation -> Pooling 순서로 적용한다.
+- 비슷한 feature들이 서로 다른 이미지에서 위치가 달라지면서 다르게 해석되는 현상을 중화시킬 수 있고,
+
+  feature map의 크기가 줄어들기 때문에, 연산 성능이 향상 된다.
+- Max Pooling과 Average Pooling이 있으며, Max Pooling은 중요도가 가장 높은 feature를 추출하고,
+
+  Average Pooling은 전체를 버무려서 추출한다.
+
+
+#### 🚩 정리 
+- Stride를 증가시키는 것과 Pooling을 적용하는 것은 출력 feature map의 크기를 줄이는 데 사용하는 것이다.
+- Convolution 연산을 진행하면, feature map의 크기를 줄이면, 위치 변화에 따른 feature의 영향도도 줄어들기 때문에, 과적합(overfitting)을 방지할 수 있는 장점이 있다.
+
+- Pooling의 경우 특정 위치의 feature 값이 손실되는 이슈 등으로 인하여 최근 Advanced CNN에서는 많이 사용되지 않는다.
+- Classifier 에서는 Fully Connected Layer의 지나친 연결로 인해 많은 파라미터가 생성되므로 오히려 과적합이 발생할 수 있다.
+
+
+- #### Dropout을 사용해서 Layer간 연결을 줄일 수 있으며 과적합을 방지할 수 있다.
